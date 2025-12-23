@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 
 void main() {
   runApp(const MyApp());
@@ -11,101 +12,215 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Actividad Práctica 1',
-      theme: ThemeData(
-        primarySwatch: Colors.indigo,
-        useMaterial3: true,
-      ),
-      home: const HomePage(),
+      title: 'Parcial 1 - UNIVO',
+      home: const MenuPage(),
     );
   }
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class MenuPage extends StatelessWidget {
+  const MenuPage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Menú Principal')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: GridView.count(
+          crossAxisCount: 2,
+          crossAxisSpacing: 15,
+          mainAxisSpacing: 15,
+          children: [
+            menuCard(context, 'Lista de Súper', Icons.shopping_cart, const SuperPage()),
+            menuCard(context, 'Clima', Icons.wb_sunny, const ClimaPage()),
+            menuCard(context, 'Fecha y Hora', Icons.timer, const HoraPage()),
+            menuCard(context, 'Agenda', Icons.contact_phone, const AgendaPage()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget menuCard(BuildContext context, String titulo, IconData icono, Widget pagina) {
+    return Card(
+      elevation: 5,
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => pagina),
+          );
+        },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icono, size: 50, color: Colors.blue),
+            const SizedBox(height: 10),
+            Text(titulo, style: const TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-class _HomePageState extends State<HomePage> {
-  int _contador = 0;
+class SuperPage extends StatelessWidget {
+  const SuperPage({super.key});
 
-  void _incrementar() {
-    setState(() {
-      _contador++;
+  final List<Map<String, dynamic>> productos = const [
+    {'nombre': 'Arroz', 'icono': Icons.rice_bowl},
+    {'nombre': 'Leche', 'icono': Icons.local_drink},
+    {'nombre': 'Pan', 'icono': Icons.bakery_dining},
+    {'nombre': 'Huevos', 'icono': Icons.egg},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Lista de Súper')),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: productos.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  leading: Icon(productos[index]['icono']),
+                  title: Text(productos[index]['nombre']),
+                );
+              },
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Regresar'),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+}
+
+class ClimaPage extends StatelessWidget {
+  const ClimaPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Clima')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.cloud, size: 100, color: Colors.grey),
+            const Text('24°C', style: TextStyle(fontSize: 40)),
+            const Text('Nublado', style: TextStyle(fontSize: 20)),
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Regresar'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class HoraPage extends StatefulWidget {
+  const HoraPage({super.key});
+
+  @override
+  State<HoraPage> createState() => _HoraPageState();
+}
+
+class _HoraPageState extends State<HoraPage> {
+  late Timer _timer;
+  DateTime _fechaHoraActual = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        _fechaHoraActual = DateTime.now();
+      });
     });
   }
 
   @override
-  Widget build(BuildContext context) {
-    final double ancho = MediaQuery.of(context).size.width;
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Actividad Práctica 1'),
-        backgroundColor: Colors.indigo,
-        foregroundColor: Colors.white,
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
+      appBar: AppBar(title: const Text('Fecha y Hora')),
+      body: Center(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'Panel de Información',
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+            const Icon(Icons.access_time, size: 80),
+            const SizedBox(height: 20),
+            Text(
+              '${_fechaHoraActual.day}/${_fechaHoraActual.month}/${_fechaHoraActual.year}',
+              style: const TextStyle(fontSize: 25),
+            ),
+            Text(
+              '${_fechaHoraActual.hour}:${_fechaHoraActual.minute.toString().padLeft(2, '0')}:${_fechaHoraActual.second.toString().padLeft(2, '0')}',
+              style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 30),
-            Text(
-              'Total: $_contador',
-              style: const TextStyle(fontSize: 40, color: Colors.indigo),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Regresar'),
             ),
-            const SizedBox(height: 40),
-            ancho < 600
-                ? Column(
-                    children: [
-                      _infoCard('Sección Informativa 1'),
-                      const SizedBox(height: 15),
-                      _infoCard('Sección Informativa 2'),
-                    ],
-                  )
-                : Row(
-                    children: [
-                      Expanded(child: _infoCard('Sección Informativa 1')),
-                      const SizedBox(width: 15),
-                      Expanded(child: _infoCard('Sección Informativa 2')),
-                    ],
-                  ),
           ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementar,
-        backgroundColor: Colors.indigo,
-        child: const Text(
-          '+',
-          style: TextStyle(color: Colors.white, fontSize: 24),
         ),
       ),
     );
   }
+}
 
-  Widget _infoCard(String titulo) {
-    return Container(
-      height: 150,
-      decoration: BoxDecoration(
-        color: Colors.indigo.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.indigo),
-      ),
-      child: Center(
-        child: Text(
-          titulo,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-        ),
+class AgendaPage extends StatelessWidget {
+  const AgendaPage({super.key});
+
+  final List<Map<String, String>> contactos = const [
+    {'nombre': 'Enmanuel Mejia', 'telefono': '7890-1234'},
+    {'nombre': 'Ing. William', 'telefono': '7123-4567'},
+    {'nombre': 'Carlos Ruiz', 'telefono': '7012-9876'},
+    {'nombre': 'Pedro Sanchez', 'telefono': '7123-4567'},
+    {'nombre': 'Pablo Martinez', 'telefono': '7012-9876'},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Agenda Telefónica')),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: contactos.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  leading: const CircleAvatar(child: Icon(Icons.person)),
+                  title: Text(contactos[index]['nombre']!),
+                  subtitle: Text(contactos[index]['telefono']!),
+                );
+              },
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Regresar'),
+          ),
+          const SizedBox(height: 20),
+        ],
       ),
     );
   }
