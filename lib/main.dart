@@ -13,12 +13,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'App de Formularios',
       theme: ThemeData(primarySwatch: Colors.indigo),
-      home: const LoginPage(), // La pantalla inicial es el Login
+      home: const LoginPage(), 
     );
   }
 }
 
-// --- PANTALLA DE LOGIN ---
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -70,7 +69,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
               TextButton(
                 onPressed: () {
-                  // Navegar a la pantalla de Registro
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const RegistroPage()));
                 },
                 child: const Text('¿No tienes cuenta? Regístrate aquí'),
@@ -83,7 +81,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-// --- PANTALLA DE REGISTRO ---
 class RegistroPage extends StatefulWidget {
   const RegistroPage({super.key});
 
