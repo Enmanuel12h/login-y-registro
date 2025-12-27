@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
 
 void main() {
   runApp(const MyApp());
@@ -12,215 +11,147 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Parcial 1 - UNIVO',
-      home: const MenuPage(),
+      title: 'App de Formularios',
+      theme: ThemeData(primarySwatch: Colors.indigo),
+      home: const LoginPage(), // La pantalla inicial es el Login
     );
   }
 }
 
-class MenuPage extends StatelessWidget {
-  const MenuPage({super.key});
+// --- PANTALLA DE LOGIN ---
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _formKeyLogin = GlobalKey<FormState>();
+  final userCtrl = TextEditingController();
+  final passCtrl = TextEditingController();
+
+  void iniciarSesion() {
+    if (_formKeyLogin.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Iniciando sesión...'), backgroundColor: Colors.blue),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Menú Principal')),
+      appBar: AppBar(title: const Text('Login')),
       body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 15,
-          mainAxisSpacing: 15,
-          children: [
-            menuCard(context, 'Lista de Súper', Icons.shopping_cart, const SuperPage()),
-            menuCard(context, 'Clima', Icons.wb_sunny, const ClimaPage()),
-            menuCard(context, 'Fecha y Hora', Icons.timer, const HoraPage()),
-            menuCard(context, 'Agenda', Icons.contact_phone, const AgendaPage()),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget menuCard(BuildContext context, String titulo, IconData icono, Widget pagina) {
-    return Card(
-      elevation: 5,
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => pagina),
-          );
-        },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icono, size: 50, color: Colors.blue),
-            const SizedBox(height: 10),
-            Text(titulo, style: const TextStyle(fontWeight: FontWeight.bold)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class SuperPage extends StatelessWidget {
-  const SuperPage({super.key});
-
-  final List<Map<String, dynamic>> productos = const [
-    {'nombre': 'Arroz', 'icono': Icons.rice_bowl},
-    {'nombre': 'Leche', 'icono': Icons.local_drink},
-    {'nombre': 'Pan', 'icono': Icons.bakery_dining},
-    {'nombre': 'Huevos', 'icono': Icons.egg},
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Lista de Súper')),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: productos.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  leading: Icon(productos[index]['icono']),
-                  title: Text(productos[index]['nombre']),
-                );
-              },
-            ),
+        padding: const EdgeInsets.all(20.0),
+        child: Form(
+          key: _formKeyLogin,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextFormField(
+                controller: userCtrl,
+                decoration: const InputDecoration(labelText: 'Usuario', prefixIcon: Icon(Icons.person)),
+                validator: (value) => (value == null || value.isEmpty) ? 'Ingrese su usuario' : null,
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: passCtrl,
+                obscureText: true,
+                decoration: const InputDecoration(labelText: 'Contraseña', prefixIcon: Icon(Icons.lock)),
+                validator: (value) => (value == null || value.isEmpty) ? 'Ingrese su contraseña' : null,
+              ),
+              const SizedBox(height: 30),
+              ElevatedButton(
+                onPressed: iniciarSesion,
+                style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
+                child: const Text('Ingresar'),
+              ),
+              TextButton(
+                onPressed: () {
+                  // Navegar a la pantalla de Registro
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const RegistroPage()));
+                },
+                child: const Text('¿No tienes cuenta? Regístrate aquí'),
+              )
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Regresar'),
-          ),
-          const SizedBox(height: 20),
-        ],
-      ),
-    );
-  }
-}
-
-class ClimaPage extends StatelessWidget {
-  const ClimaPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Clima')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.cloud, size: 100, color: Colors.grey),
-            const Text('24°C', style: TextStyle(fontSize: 40)),
-            const Text('Nublado', style: TextStyle(fontSize: 20)),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Regresar'),
-            ),
-          ],
         ),
       ),
     );
   }
 }
 
-class HoraPage extends StatefulWidget {
-  const HoraPage({super.key});
+// --- PANTALLA DE REGISTRO ---
+class RegistroPage extends StatefulWidget {
+  const RegistroPage({super.key});
 
   @override
-  State<HoraPage> createState() => _HoraPageState();
+  State<RegistroPage> createState() => _RegistroPageState();
 }
 
-class _HoraPageState extends State<HoraPage> {
-  late Timer _timer;
-  DateTime _fechaHoraActual = DateTime.now();
+class _RegistroPageState extends State<RegistroPage> {
+  final _formKeyReg = GlobalKey<FormState>();
+  final nombreCtrl = TextEditingController();
+  final correoCtrl = TextEditingController();
+  final passwordCtrl = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        _fechaHoraActual = DateTime.now();
+  void registrarUsuario() {
+    if (_formKeyReg.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Datos enviados correctamente'), backgroundColor: Colors.green),
+      );
+      // Regresar al Login después de registrarse
+      Future.delayed(const Duration(seconds: 2), () {
+        Navigator.pop(context);
       });
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Fecha y Hora')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.access_time, size: 80),
-            const SizedBox(height: 20),
-            Text(
-              '${_fechaHoraActual.day}/${_fechaHoraActual.month}/${_fechaHoraActual.year}',
-              style: const TextStyle(fontSize: 25),
+      appBar: AppBar(title: const Text('Registro de Usuario')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKeyReg,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: nombreCtrl,
+                  decoration: const InputDecoration(labelText: 'Nombre Full', prefixIcon: Icon(Icons.face)),
+                  validator: (v) => (v == null || v.isEmpty) ? 'Campo obligatorio' : null,
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: correoCtrl,
+                  decoration: const InputDecoration(labelText: 'Correo', prefixIcon: Icon(Icons.email)),
+                  validator: (v) => (v == null || !v.contains('@')) ? 'Correo no válido' : null,
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: passwordCtrl,
+                  obscureText: true,
+                  decoration: const InputDecoration(labelText: 'Contraseña', prefixIcon: Icon(Icons.security)),
+                  validator: (v) => (v == null || v.length < 5) ? 'Mínimo 5 caracteres' : null,
+                ),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: registrarUsuario,
+                  style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
+                  child: const Text('Registrar'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Ya tengo cuenta, volver al Login'),
+                )
+              ],
             ),
-            Text(
-              '${_fechaHoraActual.hour}:${_fechaHoraActual.minute.toString().padLeft(2, '0')}:${_fechaHoraActual.second.toString().padLeft(2, '0')}',
-              style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Regresar'),
-            ),
-          ],
+          ),
         ),
-      ),
-    );
-  }
-}
-
-class AgendaPage extends StatelessWidget {
-  const AgendaPage({super.key});
-
-  final List<Map<String, String>> contactos = const [
-    {'nombre': 'Enmanuel Mejia', 'telefono': '7890-1234'},
-    {'nombre': 'Ing. William', 'telefono': '7123-4567'},
-    {'nombre': 'Carlos Ruiz', 'telefono': '7012-9876'},
-    {'nombre': 'Pedro Sanchez', 'telefono': '7123-4567'},
-    {'nombre': 'Pablo Martinez', 'telefono': '7012-9876'},
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Agenda Telefónica')),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: contactos.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  leading: const CircleAvatar(child: Icon(Icons.person)),
-                  title: Text(contactos[index]['nombre']!),
-                  subtitle: Text(contactos[index]['telefono']!),
-                );
-              },
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Regresar'),
-          ),
-          const SizedBox(height: 20),
-        ],
       ),
     );
   }
